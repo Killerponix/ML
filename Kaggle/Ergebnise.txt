@@ -1,0 +1,38 @@
+7,4 0,701 score
+9,19 0,65296   zwischen 5,11 und 4,21
+50,4 0,61386
+20,4 0,61303	1,2272
+11,4 0,61955	1,1433
+20,4,5,0.01	1.07525 	MSE: 1.126299
+10,7,8,0.1	0,70184 
+10,7,5,0.1	0,70184
+20,4,5,0.1	1,07525
+20,4,5,0.5	1,07525
+
+
+KNNRegressor
+Default: 0.5362
+K=2, smear=1 = 0.52247
+19,19 = 0,72085
+k=2,smear=1 = 0.52247
+3,1 mod1 kernel 3 =0,54348
+3,1, mod1 kernel 4= 0,54348
+9,1 mod 1 kernel 3 norm 1 = 0.596
+1.8339674198820004e-05  wurde mit  19 7  erreicht im Modus:  1 und Kernel: 3 norm:  1 0,68 KNN
+0.8199469853318012  wurde mit  19 2  erreicht im Modus:  1 und Kernel: 3 norm:  1 0,64
+0.8199469853318012  wurde mit  19 2  erreicht im Modus:  1 und Kernel: 3 norm:  1
+1000  wurde mit  5 1  erreicht im Modus:  1 und Kernel: 3 norm:  1 0,56148
+1000  wurde mit  5 1  erreicht im Modus:  1 und Kernel: 3 norm:  None 0,56942
+1000  wurde mit  1 1  erreicht im Modus:  1 und Kernel: 3 norm:  None 0,55725
+1000  wurde mit  2 1  erreicht im Modus:  1 und Kernel: 4 norm:  None 0,52444
+1000  wurde mit  2 1  erreicht im Modus:  1 und Kernel: 4 norm:  1 0,52911
+1000  wurde mit  3 1  erreicht im Modus:  1 und Kernel: 4 norm:  1 0,54459
+1000  wurde mit  3 1  erreicht im Modus:  1 und Kernel: 4 norm:  None 0,54090
+Beste Parameter: {'k': 10, 'smear': 1, 'kernel': 4, 'norm': 1}, Beste MSE: 1.1381 0,50922
+Beste Parameter: {'k': 1, 'smear': 1, 'kernel': 6, 'norm': 1}, Beste MSE: 1.5243 = 0,58631
+Beste Parameter: {'k': 1, 'smear': 1, 'kernel': 7, 'norm': 1}, Beste MSE: 1.5243 = 0,58631
+Beste Parameter: {'k': 1, 'smear': 1, 'kernel': 9, 'norm': 1}, Beste MSE: 1.5243 = 0,58631
+Beste Parameter: {'k': 4, 'smear': 0.0, 'kernel': 3, 'norm': 1, 'mode': 1}, Beste MSE: 1.2624 =0,51602
+
+
+
