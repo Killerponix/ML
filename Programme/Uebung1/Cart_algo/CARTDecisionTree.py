@@ -1,5 +1,6 @@
 import numpy as np
-from binaryTree import tree 
+from binaryTree import tree
+
 
 class bDecisionTree:
     def _calGiniImpurity(self,y):
