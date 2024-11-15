@@ -1,0 +1,47 @@
+\documentclass[ngerman]{article}
+\usepackage[margin=1cm,landscape,a1paper]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{trfsigns}
+\usepackage{pgfplots}
+\usepackage[landscape]{geometry}
+\usetikzlibrary{patterns}
+\usetikzlibrary{shapes,arrows,shadows,positioning, calc, matrix, decorations.pathreplacing,decorations.markings}
+\usetikzlibrary{shapes,snakes}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{plotmarks, shapes,arrows,shadows,positioning, calc, shapes.multipart, automata}
+\usetikzlibrary{positioning,shapes.multipart,calc,arrows.spaced,graphs,arrows.meta}
+\usetikzlibrary{angles,quotes}
+\usetikzlibrary{backgrounds}
+\usepackage{tikz-3dplot}
+\usepackage{csvsimple}
+\usepackage{pgfplots}
+\usepackage[locale=DE, per=frac, fraction=frac]{siunitx}
+\usetikzlibrary{calc}
+\pgfplotsset{compat=1.10}
+\usepgfplotslibrary{patchplots}
+
+\begin{document}
+    \begin{figure}[h!]
+        \begin{tikzpicture}[sibling distance=10em,   %10
+            level 1/.style = {sibling distance=40cm}, %6
+            level 2/.style = {sibling distance=30cm},  %3
+            level 3/.style = {sibling distance=13cm},  %2
+            level 4/.style = {sibling distance=6cm},  %2
+            level distance = 1cm,
+            every node/.style = {shape=rectangle, rounded corners,
+                draw, align=center}]]
+
+%ab Hier Output Methode: print(myTree.bTree.print(6))
+
+           \node {0 || x[0] = 1 } child { node {4 || x[2] = 1 } child { node[fill=gray!30] {5 || 0 }  } child { node {6 || x[3] = 1 } child { node[fill=gray!30] {7 || 0 }  } child { node[fill=gray!30] {8 || 1 }  }  }  } child { node {1 || x[1] = 1 } child { node[fill=gray!30] {3 || 1 }  } child { node[fill=gray!30] {2 || 0 }  }  }  ;
+
+%Ende
+ 
+        \end{tikzpicture}
+        \caption{\label{fig:EinBaumRadfahren:2} Baum Aufgabe3 Übungsblatt4}
+    \end{figure}
+    
+\end{document}
