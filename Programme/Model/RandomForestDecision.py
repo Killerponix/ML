@@ -29,17 +29,27 @@ class randomForestDecision:
 
 
 
-    def predict(self,X):
-        y_predict = np.zeros(X.shape[0],self.noOfTrees)
-        for i in range(self.noOfTrees):
-            y_predict[:,1] =self.bTree[i].predict(X)
-        result = np.unique(np.argmax(y_predict)) #Mit Unique noch die result rechnen.
+    # def predict(self,X):
+    #     y_predict = np.zeros(X.shape[0],self.noOfTrees)
+    #     for i in range(self.noOfTrees):
+    #         y_predict[:,1] =self.bTree[i].predict(X)
+    #     result = np.unique(np.argmax(y_predict)) #Mit Unique noch die result rechnen.
+    #
+    #     # ypredict = np.zeros(X.shape[0])
+    #     # for i in range(self.noOfTrees):
+    #     #     ypredict += self.bTree[i].predict(X)
+    #     # ypredict = ypredict/self.noOfTrees
+    #     return(result)
 
-        # ypredict = np.zeros(X.shape[0])
-        # for i in range(self.noOfTrees):
-        #     ypredict += self.bTree[i].predict(X)
-        # ypredict = ypredict/self.noOfTrees
-        return(result)
+    def predict(self, X):
+        y_predict = np.zeros((X.shape[0], self.noOfTrees))  # Ensure shape is passed as a tuple
+        for i in range(self.noOfTrees):
+            y_predict[:, i] = self.bTree[i].predict(X)  # Assign predictions for each tree
+
+        # Aggregate predictions: Here, use the mode or average as appropriate
+        result = np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=1, arr=y_predict.astype(int))
+
+        return result
 
 def calculate_accuracy(y_true, y_pred):
     """
