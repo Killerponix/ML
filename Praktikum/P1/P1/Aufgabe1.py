@@ -17,11 +17,17 @@ X_train = train[:, 1:]      # Restliche Spalten sind X für das Trainingsset
 y_test = test[:, 0]         # Erste Spalte ist y für das Testset
 X_test = test[:, 1:]        # Restliche Spalten sind X für das Testset
 
+print(X_train.shape,X_test.shape)
+
 CC = bDecisionTree(xDecimals=5,threshold=0.1,minLeafNodeSize=3)
 CC.fit(X_train,y_train)
 y_predict = CC.predict(X_test)
 print(y_predict - y_test)
 accuracy(y_test,y_predict)
+
+error_count = np.count_nonzero(y_test - y_predict)
+errors = (y_test != y_predict)
+print(error_count)
 
 fig = plt.figure(1)
 ax = fig.add_subplot(2,2,1)
@@ -51,7 +57,8 @@ ax.grid(True)
 plt.tight_layout()
 plt.show(block=False)
 #fig.show(True, block=False)
-fig.savefig('Aufgabe_1.pdf', bbox_inches='tight')
+fig.savefig("Aufgabe_1.png", dpi=300)
+# fig.savefig('Aufgabe_1.pdf', bbox_inches='tight')
 
 
 
