@@ -1,3 +1,5 @@
+import numpy as np
+
 def train_test_split(X, y, test_size=0.2, shuffle=True):
     """
     Splits the dataset into training and testing sets using numpy arrays.
