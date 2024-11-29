@@ -1,0 +1,9 @@
+earlystop und checkpoint als callbacklist
+batchsize 256?
+normierung?
+
+
+zum hochladen
+die pyhon datei
+die gewichte 
+und ypred datei
