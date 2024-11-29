@@ -22,7 +22,7 @@ ax = fig.add_subplot(1,1,1)
 errors = []
 
 for i in range(1,50):
-    rf = randomForestDecision()
+    rf = randomForestDecision(noOfTrees=i)
     rf.fit(X_train,y_train)
     y_predict = rf.predict(X_test)
     accuracy(y_test,y_predict)
@@ -32,4 +32,5 @@ for i in range(1,50):
 ax.plot(range(1,50),errors,linestyle='-')
 ax.set_xlabel("Bäume")
 ax.set_ylabel("Fehler")
+fig.savefig("Aufgabe_3.png", dpi=300)
 fig.show(True)
