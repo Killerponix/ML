@@ -1,5 +1,4 @@
 from itertools import product
-import pandas as pd
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
@@ -9,6 +8,7 @@ from keras._tf_keras.keras.callbacks import EarlyStopping, Callback,CallbackList
 from keras._tf_keras.keras.models import load_model
 from keras._tf_keras.keras.optimizers.legacy import SGD
 from matplotlib import pyplot
+import csv
 
 def divValTrainSet(X,Y):
     ValSet = np.random.choice(X.shape[0],int(X.shape[0]*0.2),replace=False)
@@ -18,7 +18,7 @@ def divValTrainSet(X,Y):
     X = X[TrainSet,:]
     Y = Y[TrainSet]
     return (XVal, YVal, X, Y)
-(XVal, YVal, XTr, YTr) = divValTrainSet(xTrain,Y)
+
 
 # Hyperparameter-Suche
 def build_and_train_model(input_dim, layers, activation, optimizer, epochs, patience):
@@ -52,13 +52,21 @@ def build_and_train_model(input_dim, layers, activation, optimizer, epochs, pati
 
     return model, val_loss
 
+# Lade die Daten
+xTrain = np.load("XTrain.npy")
+xTest = np.load("XTest.npy")
+yTrain = np.load("YTrain.npy")
+yMin = yTrain.min(axis=0); yMax = yTrain.max(axis=0)
+Y=((yTrain-yMin)/(yMax-yMin))
+(XVal, YVal, XTr, YTr) = divValTrainSet(xTrain,Y)
+
 # Definiere Hyperparameter-Räume
 layer_configs = [
-    [64, 32], [64, 32, 16], [128, 64, 32]
+    [64, 32], [64, 32, 16], [128, 64, 32],[48,24,16]
 ]
 activations = ['relu', 'sigmoid']
-optimizers = ['adam', SGD(learning_rate=0.01)]
-epochs = 100
+optimizers = ['adam']
+epochs = 200
 patience = 20
 
 # Hyperparameter-Kombinationen testen
@@ -81,6 +89,7 @@ print(f"Beste Konfiguration: Layers={best_config[0]}, Activation={best_config[1]
 yp = best_model.predict(xTest).reshape(-1)
 ypo = yp * (yMax - yMin) + yMin
 
+assert len(yp) == 5344, f"Es müssen 5344 Vorhersagen sein, aber es gibt {len(ypo)}."
 # CSV-Datei erstellen
 filename = 'yPredict_Best_Garb_Simon.csv'
 with open(filename, mode='w', newline='') as file:

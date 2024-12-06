@@ -29,7 +29,7 @@ def min_max_normalize(data, min_vals=None, max_vals=None):
     return normalized, min_vals, max_vals
 
 # Seed für Reproduzierbarkeit
-np.random.seed(7)
+np.random.seed(42)
 # tf.random.set_seed(42)  # Optional: Seed für TensorFlow setzen
 
 # Lade die Daten
@@ -40,7 +40,7 @@ yMin = yTrain.min(axis=0); yMax = yTrain.max(axis=0)
 Y=((yTrain-yMin)/(yMax-yMin))
 
 def divValTrainSet(X,Y):
-    ValSet = np.random.choice(X.shape[0],int(X.shape[0]*0.18),replace=False)
+    ValSet = np.random.choice(X.shape[0],int(X.shape[0]*0.2),replace=False)
     TrainSet = np.delete(np.arange(0, Y.shape[0] ), ValSet)
     XVal = X[ValSet,:]
     YVal = Y[ValSet]
@@ -58,7 +58,6 @@ def build_train(model,units,activ):
     myANN.add(Dense(units[2],activation=activ[2],use_bias=False))
     myANN.add(Dense(units[3],activation=activ[3],use_bias=False))
     myANN.add(Dense(1,activation='linear',use_bias=False))
-    myANN.dr
     myANN.compile(loss='mean_squared_error', optimizer='adam',metrics=['mean_squared_error'])
     myANN.save('StartANN.h5')
     checkpoint = keras.callbacks.ModelCheckpoint('bestW.weights.h5', monitor='val_mean_squared_error', verbose=False,save_weights_only=True, save_best_only=True)
@@ -100,7 +99,6 @@ def build_train(model,units,activ):
 #             best_conf = (best_units,best_act)
 
 myANN = Sequential()
-# myANN = load_model('StartAnn.h5')
 myANN.add(Dense(64,input_dim=12,activation='sigmoid'))
 myANN.add(Dense(32,activation='sigmoid',use_bias=False))
 myANN.add(Dense(16,activation='sigmoid',use_bias=False))
@@ -111,7 +109,7 @@ myANN.save('StartANN.h5')
 checkpoint = keras.callbacks.ModelCheckpoint('bestW.weights.h5', monitor='val_mean_squared_error', verbose=False,save_weights_only=True, save_best_only=True)
 earlystop = keras.callbacks.EarlyStopping(monitor='val_mean_squared_error', patience=50, verbose=False,restore_best_weights=True,mode='min')
 callbacksList = [checkpoint,earlystop]
-history=myANN.fit(XTr,YTr,epochs=600,validation_data=(XVal, YVal),callbacks=callbacksList)
+history=myANN.fit(XTr,YTr,epochs=500,validation_data=(XVal, YVal),callbacks=callbacksList)
 
 # myANN.load_weights('bestW.weights.h5')
 # myANN = load_model('StartAnn.h5')
@@ -124,7 +122,6 @@ history=myANN.fit(XTr,YTr,epochs=600,validation_data=(XVal, YVal),callbacks=call
 # val_loss = min(history.history['val_mean_squared_error'])
 # print(best_conf)
 myANN.load_weights('bestW.weights.h5')
-# myANN.load_weights('Garb_Simon.weights.h5')
 yp = myANN.predict(xTest)
 yp = yp.reshape(yp.shape[0])
 

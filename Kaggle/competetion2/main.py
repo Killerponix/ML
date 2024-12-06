@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
 from keras._tf_keras.keras.models import Sequential
@@ -32,6 +31,7 @@ np.random.seed(42)
 xTrain = np.load("XTrain.npy")
 xTest = np.load("XTest.npy")
 yTrain = np.load("YTrain.npy")
+print(xTrain.shape)
 
 x_Train_N, min_vals, max_vals = min_max_normalize(xTrain)
 x_Test_N, _, _ = min_max_normalize(xTest, min_vals=min_vals, max_vals=max_vals)
