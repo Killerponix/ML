@@ -58,7 +58,6 @@ def build_train(model,units,activ):
     myANN.add(Dense(units[2],activation=activ[2],use_bias=False))
     myANN.add(Dense(units[3],activation=activ[3],use_bias=False))
     myANN.add(Dense(1,activation='linear',use_bias=False))
-    myANN.dr
     myANN.compile(loss='mean_squared_error', optimizer='adam',metrics=['mean_squared_error'])
     myANN.save('StartANN.h5')
     checkpoint = keras.callbacks.ModelCheckpoint('bestW.weights.h5', monitor='val_mean_squared_error', verbose=False,save_weights_only=True, save_best_only=True)
