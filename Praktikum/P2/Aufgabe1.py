@@ -46,6 +46,7 @@ Xnorm= min_max_normalize(X) #Normalisieren nur auf die Trainingsmenge, die Daten
 # Y=data[:, 1:2]
 print(Y)
 Xval, Yval, xtrain, ytrain, xtest,ytest = divValTrainSet(X,Y)
+xtrainNorm = min_max_normalize(xtrain)
 
 
 myANN = Sequential()
@@ -53,9 +54,9 @@ myANN.add(Dense(64,activation='sigmoid', kernel_regularizer=regularizers.l2(0.00
 myANN.add(Dense(32,activation='sigmoid',use_bias=True,kernel_regularizer=regularizers.l2(0.0001)))
 myANN.add(Dense(16,activation='sigmoid',use_bias=True,kernel_regularizer=regularizers.l2(0.0001)))
 myANN.add(Dense(8,activation='sigmoid',use_bias=True,kernel_regularizer=regularizers.l2(0.0001)))
-myANN.add(Dense(2,activation='sigmoid',use_bias=True,kernel_regularizer=regularizers.l2(0.0001)))
+myANN.add(Dense(1,activation='sigmoid',use_bias=True,kernel_regularizer=regularizers.l2(0.0001)))
 opt = keras.optimizers.Adam(learning_rate=0.01)
-myANN.compile(loss='binary_crossentropy', optimizer=opt, metrics=[keras.metrics.Accuracy()])
+myANN.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 # checkpoint = keras.callbacks.ModelCheckpoint('bestW.weights.h5', monitor='accuarcy', verbose=False,
 #                                              save_weights_only=True, save_best_only=True)
