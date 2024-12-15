@@ -3,6 +3,7 @@ import keras
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
+from keras.models import load_model
 from tensorflow.keras.optimizers import Adam
 import numpy as np
 from Programme.Model.util.mse import mean_squared_error
@@ -15,6 +16,7 @@ from Programme.Model.util.accuracy import accuracy
 from keras.callbacks import EarlyStopping
 import os
 
+np.random.seed(42)
 
 # Funktion zum Erstellen des Modells
 def create_model(neurons_per_layer, layers, activation_function, input_dim,l2rate,learning,opimizer):
@@ -27,15 +29,15 @@ def create_model(neurons_per_layer, layers, activation_function, input_dim,l2rat
 
     # Definieren der Eingabeform explizit
     # model.add(Dense(neurons_per_layer[0], activation=activation_function, input_dim=input_dim))
-    model.add(Dense(neurons_per_layer, activation="sigmoid", input_dim=input_dim,use_bias=True))
+    model.add(Dense(neurons_per_layer, activation="sigmoid", input_dim=input_dim,use_bias=True,kernel_regularizer=regularizers.l2(l2rate)))
     neurons = neurons_per_layer
     # Hinzufügen der versteckten Schichten
     for i in range(layers):
-        model.add(Dense(neurons, activation=activation_function,kernel_regularizer=regularizers.l2(l2rate),use_bias=True))
         neurons = neurons // 2
+        model.add(Dense(neurons, activation=activation_function,kernel_regularizer=regularizers.l2(l2rate),use_bias=True))
 
     # Ausgabe-Schicht
-    model.add(Dense(1, activation='sigmoid'))
+    model.add(Dense(1, activation='sigmoid',use_bias=True,kernel_regularizer=regularizers.l2(l2rate)))
 
     # Zusammenfassung und Kompilierung
     model.summary()
@@ -64,8 +66,8 @@ def div_val_train_set(X, Y,size):
     total_indices = np.arange(X.shape[0])
     np.random.shuffle(total_indices)
 
-    val_size = int(X.shape[0] * 0.15)
-    test_size = int(X.shape[0] * 0.15)
+    val_size = int(X.shape[0] *size)
+    test_size = int(X.shape[0] *size)
 
     val_indices = total_indices[:val_size]
     test_indices = total_indices[val_size:val_size + test_size]
@@ -79,15 +81,6 @@ def div_val_train_set(X, Y,size):
     Y_test = Y[test_indices]
 
     return X_val, Y_val, X_train, Y_train, X_test, Y_test
-
-def divTestTrainSet(X, Y, size):
-    ValSet = np.random.choice(X.shape[0], int(X.shape[0] * size), replace=False)
-    TrainSet = np.delete(np.arange(0, Y.shape[0]), ValSet)
-    XVal = X[ValSet, :]
-    YVal = Y[ValSet]
-    X = X[TrainSet, :]
-    Y = Y[TrainSet]
-    return (XVal, YVal, X, Y)
 
 def min_max_normalize(data, min_vals=None, max_vals=None):
     """
@@ -118,18 +111,31 @@ def train_model(neurons_per_layer, layers, activation_function, train_split, epo
     # Datensätze teilen
     X_val, Y_val, X_train, Y_train, X_test, Y_test = div_val_train_set(X, Y,train_split)
 
+    xtmp, tmpmin,tmpmax = min_max_normalize(X)
     # Normalisierung der Trainingsdaten
     X_train_norm, train_min_vals, train_max_vals = min_max_normalize(X_train)
 
     # Normalisierung der Validierungs- und Testdaten basierend auf Trainingsdaten
     X_val_norm, _, _ = min_max_normalize(X_val, train_min_vals, train_max_vals)
-    X_test_norm, _, _ = min_max_normalize(X_test, train_min_vals, train_max_vals)
+    X_test_norm, _, _ = min_max_normalize(X_test, tmpmin, tmpmax)
+    # X_val_norm,_,_ = min_max_normalize(X_val)
+    # X_test_norm,_,_ = min_max_normalize(X)
 
-    early_stop = EarlyStopping(monitor="val_loss", patience=500, verbose=True, restore_best_weights=True, mode='min')
-    callbacks_list = [early_stop]
+    # checkpoint = keras.callbacks.ModelCheckpoint('bestW.weights.h5', monitor='val_loss', verbose=False,save_weights_only=True, save_best_only=True)
+    # early_stop = EarlyStopping(monitor="val_loss", patience=500, verbose=True, restore_best_weights=True, mode='min')
+    # callbacks_list = [early_stop,checkpoint]
     # Modell erstellen und trainieren
-    print(X.shape[1], neurons_per_layer, activation_function, X_val_norm.shape, Y_val.shape)
+    print(X.shape[1], neurons_per_layer,layers,l2rate,learn, activation_function, X_val_norm.shape, Y_val.shape)
     model = create_model(neurons_per_layer, layers, activation_function, input_dim=X.shape[1],l2rate=l2rate,learning=learn,opimizer=opt)
+    model.save('StartANN.h5')
+
+    checkpoint = keras.callbacks.ModelCheckpoint('bestW.weights.h5', monitor='val_loss', verbose=False,save_weights_only=True, save_best_only=True)
+    early_stop = EarlyStopping(monitor="val_loss", patience=500, verbose=True, restore_best_weights=True, mode='min')
+    callbacks_list = [early_stop,checkpoint]
+
+    # Training
+    # model.summary()
+
     history = model.fit(
         X_train_norm,
         Y_train,
@@ -138,6 +144,22 @@ def train_model(neurons_per_layer, layers, activation_function, train_split, epo
         epochs=epochs,
         verbose=0,
     )
+    y_pred = (model.predict(X_test_norm) > 0.5).astype(int)
+
+    # Genauigkeit berechnen
+    accuracy = np.mean(Y_test == y_pred.flatten())
+    print("Accuracy:", accuracy)
+
+
+    myANN = load_model('StartANN.h5')
+    myANN.load_weights('bestW.weights.h5')
+    # Vorhersagen und Evaluation
+    y_pred = (myANN.predict(X_test_norm) > 0.5).astype(int)
+
+    # Genauigkeit berechnen
+    accuracy = np.mean(Y_test == y_pred.flatten())
+    print("Accuracy:", accuracy)
+
     if save_model:
         model.save("trained_model.h5")
         return f"Model saved as 'trained_model.h5'", X_test_norm, Y_test
@@ -147,16 +169,57 @@ def train_model(neurons_per_layer, layers, activation_function, train_split, epo
 
 # Modell laden und Vorhersagen treffen
 def load_and_predict(model_path, input_data, xtest,ytest):
-    if not os.path.exists(model_path):
-        return "Model file not found."
+    # if not os.path.exists(model_path):
+    #     return "Model file not found."
 
-    model = tf.keras.models.load_model(model_path)
-    input_array = np.array(input_data).reshape(1, -1)
-    prediction = (model.predict(xtest)> 0.5).astype(int)
+    # model = tf.keras.models.load_model(model_path)
+    model = load_model('StartANN.h5')
+    model.load_weights('bestW.weights.h5')
+    if not input_data:
+        prediction = (model.predict(xtest) > 0.5).astype(int)
+        accuracyV = np.mean(ytest == prediction.flatten())
+        print("Accuracy:", accuracyV)
+        return  f"Accuracy{accuracyV} \n Prediction: {prediction,ytest}"
+        # return f"Accuracy: {accuracyV}\nPredictions:\n{list(zip(ytest, prediction.flatten()))}"
+
+    try:
+        # Eingabedaten (z. B. '1,2,3') in eine Liste von Indizes umwandeln
+        indices = [int(i.strip()) for i in input_data.split(",")]
+    except ValueError:
+        return "Invalid input data. Please provide a comma-separated list of integers."
+
+    # Sicherstellen, dass Indizes gültig sind
+    if any(idx < 0 or idx >= len(xtest) for idx in indices):
+        return f"Invalid index. Please provide indices between 0 and {len(xtest) - 1}."
+
+    # Beispiele aus xtest und ytest extrahieren
+    xe = xtest[indices]
+    ye = ytest[indices]
+
+    # Vorhersagen für die ausgewählten Beispiele treffen
+    prediction = (model.predict(xe) > 0.5).astype(int)
+
+    # Genauigkeit für die ausgewählten Daten berechnen
+    accuracyV = np.mean(ye == prediction.flatten())
+
+    # Ergebnis formatieren
+    result = f"Accuracy for selected examples: {accuracyV}\n"
+    for idx, x, y, p in zip(indices, xe, ye, prediction.flatten()):
+        result += f"Example {idx}:\n  Input: {x}\n  True: {y}\n  Predicted: {p}\n"
+
+    return result
+
+        # prediction = (model.predict(xtest)> 0.5).astype(int)
+        # input_array = np.array(input_data).reshape(1, -1)
+        # xe = xtest[input_array]
+        # ye = ytest[input_array]
+        # prediction = (model.predict(xe)> 0.5).astype(int)
+        # ytest = ye
+
     # return f"MSE: {mean_squared_error(y_true=ytest,y_pred=prediction)} \n Prediction: {prediction,ytest}"
-    accuracyV = np.mean(ytest == prediction.flatten())
-    print("Accuracy:", accuracyV)
-    return  f"Accuracy{accuracyV} \n Prediction: {prediction,ytest}"  #Validierungsmengengenauigkeit noch ausgeben
+    # accuracyV = np.mean(ytest == prediction.flatten())
+    # print("Accuracy:", accuracyV)
+    # return  f"Accuracy{accuracyV} \n Prediction: {prediction,ytest}"  #Validierungsmengengenauigkeit noch ausgeben
 
 
 # GUI mit Gradio erstellen
@@ -177,8 +240,8 @@ def gradio_interface():
         with gr.Tab("Training"):
             # neurons_input = gr.Textbox(label="Neuronen pro Schicht (z.B. 32, 64, 16)", value="")
             neurons_input = gr.Number(label="Neuronen in der ersten Layer- Kegel", value=64)
-            layers = gr.Number(label="Layers", minimum=2, value=3)
-            activation_input = gr.Dropdown(["relu", "tanh", "sigmoid","elu","softmax"], label="Aktivierungsfunktion", value="relu")
+            layers = gr.Number(label="Layers", minimum=2, value=2)
+            activation_input = gr.Dropdown(["relu", "tanh", "sigmoid","elu","softmax"], label="Aktivierungsfunktion", value="sigmoid")
             l2reg = gr.Number(label='L2-Regularisierungswert',value=0.0001,maximum=1,step=0.00001)
             learning = gr.Number(label='Learning Rate',value=0.1,maximum=1,step=0.001)
             optimizer = gr.Dropdown(['SGD','Adam','RMSprop'],label='Optimizer',value='Adam')
